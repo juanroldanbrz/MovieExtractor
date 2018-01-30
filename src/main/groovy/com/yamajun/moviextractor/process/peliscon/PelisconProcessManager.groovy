@@ -32,19 +32,23 @@ class PelisconProcessManager {
 
     def httpRequester = new CHttpRequester()
 
-    def startExtractionProcess() {
+    def startExtractionProcess(boolean continueWithLastProcess) {
         executor.execute({
             log.info('Starting crawling process for {}', pelisconDomain)
-            def pelisconPage = new CrawledPage(
-                    normalizedUrl: normalizeUrl(pelisconHost),
-                    domain: pelisconDomain,
-                    analyzedStatus: AnalyzedStatus.NOT_ANALYZED,
-                    createdAt: LocalDateTime.now(),
-                    updatedAt: LocalDateTime.now()
-            )
+            def initPagesToAnalyze
+            if (continueWithLastProcess){
+                def pelisconPage = new CrawledPage(
+                        normalizedUrl: normalizeUrl(pelisconHost),
+                        domain: pelisconDomain,
+                        analyzedStatus: AnalyzedStatus.NOT_ANALYZED,
+                        createdAt: LocalDateTime.now(),
+                        updatedAt: LocalDateTime.now()
+                )
 
-            def initPageToAnalyze = crawledPageRepository.save(pelisconPage)
-            def initPagesToAnalyze = [initPageToAnalyze]
+                initPagesToAnalyze = [crawledPageRepository.save(pelisconPage)]
+            } else {
+                initPagesToAnalyze = getMoviesByAnalyzedStatus(AnalyzedStatus.NOT_ANALYZED, 20)
+            }
             while (initPagesToAnalyze) {
                 crawlPeliscon(initPagesToAnalyze)
                 initPagesToAnalyze = getMoviesByAnalyzedStatus(AnalyzedStatus.NOT_ANALYZED, 20)

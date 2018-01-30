@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface CrawlProcessRepository extends MongoRepository<CrawlProcess, String>{
 
   CrawlProcess findByDomain(String domain);
+
+  CrawlProcess findById(String id);
 }

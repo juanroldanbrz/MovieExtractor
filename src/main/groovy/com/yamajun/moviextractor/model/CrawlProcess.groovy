@@ -19,4 +19,6 @@ class CrawlProcess {
     String domain
     LocalDateTime lastCrawled
     ProcessStatus processStatus
+    CrawlConfiguration crawlConfiguration;
+
 }
